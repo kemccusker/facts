@@ -36,6 +36,8 @@ def run_experiment(exp_dir, debug_mode = False, alt_id = False, resourcedir = No
 
     expconfig = facts.ParseExperimentConfig(exp_dir, globalopts=globalopts, outdir=outdir)
     experimentsteps = expconfig['experimentsteps']
+    print("KMDEBUG printing experimentsteps")
+    print_experimentsteps(experimentsteps) # KMDEBUG
     workflows = expconfig['workflows']
     climate_data_files = expconfig['climate_data_files']
 
@@ -102,6 +104,7 @@ def run_experiment(exp_dir, debug_mode = False, alt_id = False, resourcedir = No
 
         # Run the SLR projection workflow
         amgr.run()
+        print(f"KMDEBUG amgr.run() finished for {step}")
 
     # Close the application manager
     amgr.terminate()
