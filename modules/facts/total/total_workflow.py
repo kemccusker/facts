@@ -17,7 +17,7 @@ def TotalSamplesInDirectory(directory, pyear_start, pyear_end, pyear_step, chunk
 	outdir = os.path.dirname(__file__)
 
 	# Define the output file
-	outfilename = "total.workflow.zarr"
+	outfilename = "total.workflow.nc"
 	outfile = os.path.join(outdir, outfilename)
 
 	# Get the list of input files
@@ -36,7 +36,8 @@ def TotalSamplesInDirectory(directory, pyear_start, pyear_end, pyear_step, chunk
 	# Put a copy of the total file back into the shared directory
 	# shutil.copy2(outfile, directory) # KMDEBUG
 	print(f"KMDEBUG copying {outfile} to {os.path.join(directory,outfilename)}")
-	shutil.copytree(outfile, os.path.join(directory,outfilename), dirs_exist_ok=True) # KMDEBUG use this for zarr
+	shutil.copy2(outfile, directory)
+	# shutil.copytree(outfile, os.path.join(directory,outfilename), dirs_exist_ok=True) # KMDEBUG use this for zarr
 	print("KMDEBUG copied to directory")
 	return(r)
 
@@ -44,7 +45,7 @@ def TotalSamplesInDirectory(directory, pyear_start, pyear_end, pyear_step, chunk
 def TotalSampleInWorkflow(wfcfg, directory, targyears, workflow, scale, chunksize=50, experiment_name=None):
 		# Define the output file
 		outdir = os.path.dirname(__file__)
-		outfilename = "total.workflow." + workflow + "." + scale + ".zarr"
+		outfilename = "total.workflow." + workflow + "." + scale + ".nc"
 		if len(experiment_name)>0:
 			outfilename = experiment_name + "." + outfilename
 		outfile = os.path.join(outdir, outfilename)
@@ -62,7 +63,8 @@ def TotalSampleInWorkflow(wfcfg, directory, targyears, workflow, scale, chunksiz
 			# Put a copy of the total file back into the shared directory
 			# shutil.copy2(outfile, directory) # KMDEBUG
 			print(f"KMDEBUG copying {outfile} to {os.path.join(directory,outfilename)}")
-			shutil.copytree(outfile, os.path.join(directory,outfilename), dirs_exist_ok=True) # KMDEBUG use this for zarr
+			shutil.copy2(outfile, directory)
+			# shutil.copytree(outfile, os.path.join(directory,outfilename), dirs_exist_ok=True) # KMDEBUG use this for zarr
 			print("KMDEBUG copied to directory")
 
 		return(r)
@@ -112,7 +114,7 @@ def TotalSamples(infiles, outfile, targyears, chunksize):
 
     # Reads in multiple files (delayed) and tries combine along
     # common dimensions and a new "file" dimension.
-	print(f"KMDEBUG about to open all the files with lock=False. Chunksize is {chunksize}.")
+	# print(f"KMDEBUG about to open all the files with lock=False. Chunksize is {chunksize}.")
 	# ds = xr.open_mfdataset(
 	# 	target_infiles, 
 	#     combine="nested", 
@@ -120,6 +122,7 @@ def TotalSamples(infiles, outfile, targyears, chunksize):
 	#     chunks={"locations":chunksize},
 	# 	lock=False # KM again: setting to true failed w/ a weird context manager error. # KM: we sure we don't want locking=True? see https://github.com/pydata/xarray/issues/824
 	# )
+	print("KMDEBUG about to loop through the files and open them")
 	lst = []
 	for infile in infiles:
 		lst.append(xr.open_dataset(infile))
@@ -168,14 +171,13 @@ def TotalSamples(infiles, outfile, targyears, chunksize):
 	total_out = total_out.compute()
 	print(f"KMDEBUG about to write to file, outfile {outfile}")
 
-	total_out.to_zarr(outfile, 
-				   #  engine="h5netcdf",
-				   	encoding={"sea_level_change": {"dtype": "f4", "_FillValue": nc_missing_value}},)#compute=False)
-	print("KMDEBUG wrote to file")
+	total_out.to_netcdf(outfile, 
+				    engine="h5netcdf",
+				   	encoding={"sea_level_change": {"dtype": "f4", "zlib": True, "complevel":4, "_FillValue": nc_missing_value}},)#compute=False)
+	print("KMDEBUG wrote to nc file")
 	# with dask.diagnostics.ProgressBar(): # this only shows up in the .out file in the docker?
 	# 	print(f"			>> Writing to File...")
 	# 	write_job.compute()
-	
 
 
 	return(outfile)
