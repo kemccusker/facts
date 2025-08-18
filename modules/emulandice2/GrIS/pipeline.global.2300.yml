@@ -10,7 +10,7 @@ project:
       - --region
       - ALL
       - --emu_file
-      - emu_file/GIS_ALL_CISM_pow_exp_01_EMULATOR.RData 
+      - emu_file/GIS_ALL_CISM_pow_exp_01_EMULATOR.RData
     options:
       - "pipeline_id"
       - "scenario"
@@ -25,10 +25,10 @@ project:
     upload_input_data:
       - "%MODULE_PATH%/../shared/emulandice_environment.sh"
       - "%MODULE_PATH%/../shared/emulandice_steer.sh"
-      - "%MODULE_PATH%/../shared/emulandice_steer.R"
+      - "%MODULE_PATH%/../shared/emulandice2/main.R"
     upload_and_extract_input_data:
       - "%MODULE_PATH%/../shared/emulandice_bundled_dependencies.tgz"
-      - "emulandice2_GrIS_project_2300_240214_data.tgz"
+      - "emulandice2_GrIS_project_2300_250815_data.tgz"
     global_total_files:
       - "%PIPELINE_ID%_ALL_globalsl.nc"
     download_output_data:
